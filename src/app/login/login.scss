@@ -1,0 +1,226 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.login-wrapper {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  min-height: 50vh;
+  font-family: 'Segoe UI', sans-serif;
+
+  /* 🌄 FONDO GLOBAL (AMBOS LADOS) */
+  background: url('./fondo7.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+
+/* LEFT SIDE */
+.login-left {
+  padding-top: 80px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  padding: 50px;
+  color: #00b1b9;
+  
+  /* FONDO CON IMAGEN izquierda 
+  background: url('./fondo6.avif') no-repeat center center;
+  background-size: cover;*/
+}
+
+/* Fondo lado izquierdo */
+.login-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:transparent;
+  z-index: 1;
+}
+
+/* CONTENIDO ENCIMA DEL OVERLAY */
+.overlay {
+  position: relative;
+  z-index: 2;
+
+  max-width: 480px;
+  text-align: center;
+}
+
+/* TITULO */
+.overlay h1 {
+  font-size: 46px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+/* TEXTO */
+.overlay p {
+  font-size: 18px;
+  line-height: 1.7;
+  opacity: .95;
+}
+
+/* ========================= */
+/* 🖼️ LOGO CENTRADO (NUEVO) */
+/* ========================= */
+
+.login-left::after {
+  content: '';
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -20%);
+/* 🔧 OPCIONES DE TAMAÑO DEL LOGO */
+  width: 300px;  /* 👈 TAMAÑO DEL LOGO */
+  height: 300px;
+
+  background: url('./candado.png') no-repeat center center;
+  background-size: contain;
+  z-index: 2;
+  opacity: 0.95;
+}
+
+
+
+.overlay {
+  max-width: 480px;
+  position: relative;
+  z-index: 2;
+  
+}
+
+
+.overlay h1 {
+  font-size: 46px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  
+}
+
+.overlay p {
+  font-size: 18px;
+  line-height: 1.7;
+  opacity: .95;
+}
+
+/* RIGHT SIDE */
+.login-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 75px;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.08);
+  text-align: center;
+}
+
+/*logo arriba de bienvenido*/
+.logo-circle {
+  width: 250px;
+  height: 250px;
+
+  background:transparent;
+  border-radius: 50%;
+  margin: 0px auto 0px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* 🖼️ LOGO COMO IMAGEN */
+  background-image: url('./fondologin.png');
+  background-size: 90%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  /* opcional: si quieres quitar el emoji */
+  font-size: 0;
+}
+
+
+.login-card h2 {
+  font-size: 60px;
+  color: white;
+}
+
+.login-card span {
+  display: block;
+  margin: 8px 0 30px;
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: .2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.1);
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #177074;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37,99,235,.25);
+}
+
+button:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+}
+
+.error {
+  margin-top: 14px;
+  color: #dc2626;
+  font-size: 14px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .login-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .login-left {
+    display: none;
+  }
+
+  .login-right {
+    padding: 20px;
+  }
+
+  .login-card {
+    padding: 35px 25px;
+  }
+}

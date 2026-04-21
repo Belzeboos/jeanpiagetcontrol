@@ -1,0 +1,257 @@
+<div class="page">
+
+  <!-- BOTÓN VOLVER (NUEVO - NO ROMPE DISEÑO) -->
+  <div style="margin-bottom: 15px;">
+    <button
+      type="button"
+      class="new-btn"
+      (click)="irDashboard()"
+      style="background:#1d4ed8; width:auto; padding:10px 16px; border-radius:12px;">
+
+      ⬅ Regresar
+    </button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="topbar">
+    <div>
+      <h1>👦 Alumnos</h1>
+      <p>Gestión y expediente escolar</p>
+    </div>
+
+    <button
+      type="button"
+      class="new-btn"
+      (click)="abrirNuevo()">
+      + Nuevo Alumno
+    </button>
+  </div>
+
+  <!-- CARDS -->
+  <section class="cards">
+
+    <div class="card big">
+      <h3>Total Alumnos</h3>
+      <span>{{ activosCount }}</span>
+
+    </div>
+
+    <div class="card groups">
+      <h3>Grupos</h3>
+
+      <div class="grid-groups">
+
+        <div>1A: {{ alumnosPorGrupo['1A'] || 0 }}</div>
+        <div>1B: {{ alumnosPorGrupo['1B'] || 0 }}</div>
+        <div>2A: {{ alumnosPorGrupo['2A'] || 0 }}</div>
+        <div>2B: {{ alumnosPorGrupo['2B'] || 0 }}</div>
+        <div>3A: {{ alumnosPorGrupo['3A'] || 0 }}</div>
+        <div>3B: {{ alumnosPorGrupo['3B'] || 0 }}</div>
+
+      </div>
+
+    </div>
+
+    <div class="card big">
+      <h3>Graduados</h3>
+      <span>{{ graduadosCount }}</span>
+    </div>
+
+  </section>
+
+  <!-- BUSCADOR -->
+  <div class="search-box">
+    <input
+      type="text"
+      placeholder="Buscar alumno por nombre o grupo..."
+      [(ngModel)]="searchText"
+      (input)="filtrarAlumnos()">
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-box">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Nombre</th>
+          <th>Grupo</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let alumno of alumnosFiltrados">
+
+          <td>
+            <img [src]="alumno.foto">
+          </td>
+
+          <td>{{ alumno.nombre }}</td>
+
+          <td>{{ alumno.grado }}{{ alumno.grupo }}</td>
+
+          <td>
+          <span
+            class="status"
+            [ngClass]="{
+              'activo': alumno.estado === 'Activo',
+              'inactivo': alumno.estado === 'Inactivo',
+              'graduado': alumno.estado === 'Graduado'
+            }">
+            {{ alumno.estado }}
+          </span>
+        </td>
+
+
+            <td>
+        <button
+          type="button"
+          class="view-btn"
+          (click)="editarAlumno(alumno)">
+          Ver / Editar
+        </button>
+
+        <button
+          type="button"
+          class="delete-btn"
+          (click)="eliminarAlumno(alumno.id)">
+          Eliminar
+        </button>
+      </td>
+
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" *ngIf="modal">
+
+  <div class="modal">
+
+    <h2>
+      {{ editando ? 'Editar Alumno' : 'Nuevo Alumno' }}
+    </h2>
+
+    <div class="form-grid">
+
+      <input [(ngModel)]="alumnoForm.nombre" placeholder="Nombre completo">
+      <input [(ngModel)]="alumnoForm.curp" placeholder="CURP">
+      <input type="date" [(ngModel)]="alumnoForm.nacimiento">
+
+      <select [(ngModel)]="alumnoForm.grado">
+        <option value="1">1°</option>
+        <option value="2">2°</option>
+        <option value="3">3°</option>
+      </select>
+
+      <select [(ngModel)]="alumnoForm.grupo">
+        <option value="A">A</option>
+        <option value="B">B</option>
+      </select>
+
+      <select [(ngModel)]="alumnoForm.estado">
+        <option value="Activo">Activo</option>
+        <option value="Inactivo">Inactivo</option>
+        <option value="Graduado">Graduado</option>
+      </select>
+
+    </div>
+
+    <textarea
+      [(ngModel)]="alumnoForm.domicilio"
+      placeholder="Domicilio">
+    </textarea>
+
+    <!-- CONTACTOS -->
+    <h3>📞 Contactos</h3>
+
+    <div
+      *ngFor="let c of alumnoForm.contactos; let i = index; trackBy: trackByIndex"
+      style="display:flex; gap:10px; align-items:center;">
+
+      <input
+        [(ngModel)]="alumnoForm.contactos[i]"
+        placeholder="Teléfono">
+
+      <button
+        type="button"
+        class="mini-btn"
+        style="background:#fee2e2; color:#b91c1c;"
+        (click)="eliminarContacto(i)">
+        ❌
+      </button>
+
+    </div>
+
+    <button
+      type="button"
+      class="mini-btn"
+      (click)="agregarContacto()">
+      + Agregar Contacto
+    </button>
+
+    <!-- ALERGIAS -->
+    <h3>⚕️ Alergias / Condiciones</h3>
+
+    <div
+      *ngFor="let a of alumnoForm.alergias; let i = index; trackBy: trackByIndex"
+      style="display:flex; gap:10px; align-items:center;">
+
+      <input
+        [(ngModel)]="alumnoForm.alergias[i]"
+        placeholder="Escribir alergia">
+
+      <button
+        type="button"
+        class="mini-btn"
+        style="background:#fee2e2; color:#b91c1c;"
+        (click)="eliminarAlergia(i)">
+        ❌
+      </button>
+
+    </div>
+
+    <button
+      type="button"
+      class="mini-btn"
+      (click)="agregarAlergia()">
+      + Agregar
+    </button>
+
+    <!-- BOTONES -->
+    <div class="actions">
+
+      <button
+        type="button"
+        class="cancel"
+        (click)="cerrarModal()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="save"
+        (click)="guardarAlumno()"
+        [disabled]="guardando">
+
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

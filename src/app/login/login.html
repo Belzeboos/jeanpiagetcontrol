@@ -1,0 +1,46 @@
+<div class="login-wrapper">
+
+  <div class="login-left">
+    <div class="overlay">
+      <h1>Jean Piaget Control</h1>
+      <p>
+        Plataforma administrativa para la gestión escolar,
+        alumnos, pagos, comedor y comunicación.
+      </p>
+    </div>
+  </div>
+
+  <div class="login-right">
+
+    <div class="login-card">
+
+      <div class="logo-circle">
+         🎓
+      </div>
+
+      <h2>Bienvenido</h2>
+      <span>Acceso Administrativo</span>
+
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        [(ngModel)]="email"
+      />
+
+      <input
+        type="password"
+        placeholder="Contraseña"
+        [(ngModel)]="password"
+      />
+
+      <button (click)="ingresar()" [disabled]="loading">
+        {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
+      </button>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+
+    </div>
+
+  </div>
+
+</div>

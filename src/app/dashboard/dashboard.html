@@ -1,0 +1,75 @@
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="brand">
+      <h2>🎓 Jean Piaget</h2>
+      <span>Control ERP</span>
+    </div>
+
+    <nav class="menu">
+
+      <a routerLink="/dashboard" routerLinkActive="active">🏠 Dashboard</a>
+
+      <a routerLink="/alumnos" routerLinkActive="active">👦 Alumnos</a>
+
+      <a routerLink="/maestros" routerLinkActive="active">👩‍🏫 Maestros</a>
+
+      <a routerLink="/finanzas" routerLinkActive="active">💰 Finanzas</a>
+
+      <a routerLink="/comedor" routerLinkActive="active">🍽️ Comedor</a>
+
+      <a routerLink="/ciclo-escolar" routerLinkActive="active">🎓 Ciclo Escolar</a>
+
+      <a routerLink="/reportes" routerLinkActive="active">📈 Reportes</a>
+
+    </nav>
+
+    <div class="logout">
+      <button (click)="cerrarSesion()">Cerrar Sesión</button>
+    </div>
+
+  </aside>
+
+  <!-- Main -->
+  <main class="content">
+
+    <header class="topbar">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Bienvenido al panel administrativo</p>
+      </div>
+
+      <div class="user-box">
+        👤 Administrador
+      </div>
+    </header>
+
+    <section class="cards">
+
+      <div class="card">
+        <h3>👦 Alumnos</h3>
+        <p>128</p>
+      </div>
+
+      <div class="card">
+        <h3>💰 Pendientes</h3>
+        <p>$12,500</p>
+      </div>
+
+      <div class="card">
+        <h3>🍽️ Comedor</h3>
+        <p>$2,150</p>
+      </div>
+
+      <div class="card">
+        <h3>👕 Uniformes</h3>
+        <p>8</p>
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

@@ -1,0 +1,163 @@
+<div class="page">
+
+  <div style="margin-bottom:15px;">
+    <button class="new-btn back-btn" (click)="irDashboard()">
+      ⬅ Regresar
+    </button>
+  </div>
+
+  <div class="topbar">
+    <div>
+      <h1>👨‍🏫 Maestros</h1>
+      <p>Gestión de personal docente</p>
+    </div>
+
+    <button class="new-btn" (click)="abrirNuevo()">
+      + Nuevo Maestro
+    </button>
+  </div>
+
+  <section class="cards">
+    <div class="card big">
+      <h3>Total Maestros</h3>
+      <span>{{ activosCount }}</span>
+    </div>
+  </section>
+
+  <div class="search-box">
+    <input
+      type="text"
+      placeholder="Buscar por nombre..."
+      [(ngModel)]="searchText"
+      (input)="filtrar()">
+  </div>
+
+  <div class="table-box">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Nombre</th>
+          <th>Carrera</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let maestro of maestrosFiltrados">
+
+          <td><img [src]="maestro.foto"></td>
+          <td>{{ maestro.nombre }}</td>
+          <td>{{ maestro.carrera }}</td>
+
+          <td>
+            <span
+              class="status"
+              [ngClass]="{
+                'activo': maestro.estado === 'Activo',
+                'inactivo': maestro.estado === 'Inactivo',
+                'boletinado': maestro.estado === 'Boletinado'
+              }">
+              {{ maestro.estado }}
+            </span>
+          </td>
+
+          <td>
+            <button class="view-btn" (click)="editar(maestro)">
+              Ver / Editar
+            </button>
+
+            <button class="delete-btn" (click)="eliminar(maestro.id)">
+              Eliminar
+            </button>
+          </td>
+
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" *ngIf="modal">
+  <div class="modal">
+
+    <h2>{{ editando ? 'Editar Maestro' : 'Nuevo Maestro' }}</h2>
+
+    <div class="form-grid">
+      <input [(ngModel)]="maestroForm.nombre" placeholder="Nombre">
+      <input [(ngModel)]="maestroForm.curp" placeholder="CURP">
+      <input [(ngModel)]="maestroForm.cedula" placeholder="Cédula">
+    </div>
+
+    <h3>📚 Grupos a cargo</h3>
+
+    <div
+      *ngFor="let g of maestroForm.grupos; let i=index; trackBy: trackByIndex"
+      class="row-add">
+
+      <select [(ngModel)]="maestroForm.grupos[i]">
+        <option value="">Seleccionar grupo</option>
+        <option value="1A">1A</option>
+        <option value="1B">1B</option>
+        <option value="2A">2A</option>
+        <option value="2B">2B</option>
+        <option value="3A">3A</option>
+        <option value="3B">3B</option>
+      </select>
+
+      <button class="mini-btn red" (click)="eliminarGrupo(i)">
+        ❌
+      </button>
+    </div>
+
+    <button class="mini-btn" (click)="agregarGrupo()">
+      + Agregar Grupo
+    </button>
+
+    <textarea
+      [(ngModel)]="maestroForm.domicilio"
+      placeholder="Domicilio">
+    </textarea>
+
+    <h3>📞 Contactos</h3>
+
+    <div
+      *ngFor="let c of maestroForm.contactos; let i=index; trackBy: trackByIndex"
+      class="row-add">
+
+      <input
+        [(ngModel)]="maestroForm.contactos[i]"
+        placeholder="Teléfono">
+
+      <button class="mini-btn red" (click)="eliminarContacto(i)">
+        ❌
+      </button>
+    </div>
+
+    <button class="mini-btn" (click)="agregarContacto()">
+      + Agregar Contacto
+    </button>
+
+    <input [(ngModel)]="maestroForm.carrera" placeholder="Carrera">
+
+    <select [(ngModel)]="maestroForm.estado">
+      <option value="Activo">Activo</option>
+      <option value="Inactivo">Inactivo</option>
+      <option value="Boletinado">Boletinado</option>
+    </select>
+
+    <div class="actions">
+      <button class="cancel" (click)="cerrar()">Cancelar</button>
+
+      <button class="save" (click)="guardar()" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+
+  </div>
+</div>

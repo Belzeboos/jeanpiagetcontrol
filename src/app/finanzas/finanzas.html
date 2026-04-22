@@ -1,1 +1,444 @@
-<p>finanzas works!</p>
+<div class="fin-page">
+
+  <!-- HEADER -->
+  <div class="fin-header">
+    <button class="btn-back" (click)="irDashboard()">⬅ Regresar</button>
+
+    <div class="fin-title">
+      <h1>💰 Finanzas</h1>
+      <p>Control de cargos y pagos de alumnos</p>
+    </div>
+
+    <div class="fin-actions">
+      <button class="btn-asignar" (click)="abrirModalAsignar()">
+        📋 Asignar Cargo
+      </button>
+    </div>
+  </div>
+
+  <!-- ESTADÍSTICAS -->
+  <section class="fin-stats">
+
+    <div class="stat-card deuda">
+      <span class="stat-icon">⚠️</span>
+      <div>
+        <p>Total Pendiente</p>
+        <strong>${{ totalPendiente | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="stat-card cobrado">
+      <span class="stat-icon">✅</span>
+      <div>
+        <p>Total Cobrado</p>
+        <strong>${{ totalCobrado | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="stat-card alumnos-deuda">
+      <span class="stat-icon">👦</span>
+      <div>
+        <p>Alumnos con Adeudo</p>
+        <strong>{{ totalAlumnosConDeuda }}</strong>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TABS -->
+  <div class="fin-tabs">
+    <button [class.active]="vista === 'alumnos'" (click)="vista = 'alumnos'">
+      👦 Por Alumno
+    </button>
+    <button [class.active]="vista === 'conceptos'" (click)="vista = 'conceptos'">
+      📂 Conceptos de Cobro
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- VISTA: POR ALUMNO                       -->
+  <!-- ═══════════════════════════════════════ -->
+  <div *ngIf="vista === 'alumnos'">
+
+    <!-- Si no hay alumno seleccionado: lista de alumnos -->
+    <div *ngIf="!alumnoSeleccionado">
+
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Buscar alumno por nombre o grupo..."
+          [(ngModel)]="searchText"
+          (input)="filtrar()">
+      </div>
+
+      <div class="alumnos-grid">
+
+        <div
+          class="alumno-card"
+          *ngFor="let alumno of alumnosFiltrados"
+          (click)="seleccionarAlumno(alumno)">
+
+          <img [src]="alumno.foto" class="alumno-foto">
+
+          <div class="alumno-info">
+            <strong>{{ alumno.nombre }}</strong>
+            <span class="alumno-grupo">{{ alumno.grado }}° {{ alumno.grupo }}</span>
+          </div>
+
+          <div class="alumno-saldo"
+            [class.con-deuda]="saldoPendienteAlumno(alumno.id) > 0"
+            [class.sin-deuda]="saldoPendienteAlumno(alumno.id) === 0">
+            <span *ngIf="saldoPendienteAlumno(alumno.id) > 0">
+              Adeudo: ${{ saldoPendienteAlumno(alumno.id) | number:'1.2-2' }}
+            </span>
+            <span *ngIf="saldoPendienteAlumno(alumno.id) === 0">
+              ✅ Al corriente
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Si hay alumno seleccionado: detalle de sus cargos -->
+    <div *ngIf="alumnoSeleccionado">
+
+      <div class="detalle-header">
+
+        <button class="btn-volver" (click)="cerrarAlumno()">
+          ← Volver a lista
+        </button>
+
+        <div class="detalle-alumno">
+          <img [src]="alumnoSeleccionado.foto">
+          <div>
+            <h2>{{ alumnoSeleccionado.nombre }}</h2>
+            <span>{{ alumnoSeleccionado.grado }}° {{ alumnoSeleccionado.grupo }}</span>
+          </div>
+        </div>
+
+        <button class="btn-nuevo-cargo" (click)="abrirModalCargo()">
+          + Nuevo Cargo
+        </button>
+
+      </div>
+
+      <!-- Tabla de cargos del alumno -->
+      <div class="table-box">
+
+        <table>
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Pagado</th>
+              <th>Pendiente</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let cargo of cargosAlumno">
+
+              <td>
+                <strong>{{ cargo.concepto_nombre }}</strong>
+                <small *ngIf="cargo.notas">{{ cargo.notas }}</small>
+              </td>
+
+              <td>{{ cargo.fecha_cargo | date:'dd/MM/yyyy' }}</td>
+
+              <td>${{ cargo.monto_total | number:'1.2-2' }}</td>
+
+              <td class="txt-verde">${{ cargo.monto_pagado | number:'1.2-2' }}</td>
+
+              <td class="txt-rojo">
+                ${{ pendienteCargo(cargo) | number:'1.2-2' }}
+              </td>
+
+              <td>
+                <span class="estado-badge" [ngClass]="estadoClass(cargo.estado)">
+                  {{ cargo.estado }}
+                </span>
+              </td>
+
+              <td>
+                <button
+                  class="btn-pagar"
+                  (click)="abrirModalPago(cargo)"
+                  [disabled]="cargo.estado === 'pagado' || cargo.estado === 'cancelado'">
+                  💵 Pagar
+                </button>
+
+                <button class="btn-eliminar" (click)="eliminarCargo(cargo.id)">
+                  🗑️
+                </button>
+              </td>
+
+            </tr>
+
+            <tr *ngIf="cargosAlumno.length === 0">
+              <td colspan="7" class="empty">Sin cargos registrados</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- VISTA: CONCEPTOS                        -->
+  <!-- ═══════════════════════════════════════ -->
+  <div *ngIf="vista === 'conceptos'">
+
+    <div class="conceptos-header">
+      <h3>Catálogo de Conceptos</h3>
+      <button class="btn-nuevo-concepto" (click)="abrirNuevoConcepto()">
+        + Nuevo Concepto
+      </button>
+    </div>
+
+    <div class="conceptos-grid">
+
+      <div class="concepto-card" *ngFor="let c of conceptos">
+
+        <div class="concepto-top">
+          <strong>{{ c.nombre }}</strong>
+          <span class="tipo-badge">{{ tipoLabel(c.tipo) }}</span>
+        </div>
+
+        <p class="concepto-desc">{{ c.descripcion }}</p>
+
+        <div class="concepto-bottom">
+          <span class="concepto-monto">${{ c.monto | number:'1.2-2' }}</span>
+          <button class="btn-editar-concepto" (click)="editarConcepto(c)">
+            ✏️ Editar
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: NUEVO CARGO INDIVIDUAL                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-bg" *ngIf="modalCargo">
+  <div class="modal">
+
+    <h2>➕ Nuevo Cargo</h2>
+
+    <label>Concepto</label>
+    <select [(ngModel)]="cargoForm.concepto_id" (change)="onConceptoChange()">
+      <option value="">— Seleccionar concepto —</option>
+      <option *ngFor="let c of conceptos" [value]="c.id">{{ c.nombre }}</option>
+    </select>
+
+    <label>Nombre del cargo (editable)</label>
+    <input [(ngModel)]="cargoForm.concepto_nombre" placeholder="Nombre del cargo">
+
+    <label>Monto Total ($)</label>
+    <input type="number" [(ngModel)]="cargoForm.monto_total" placeholder="0.00">
+
+    <label>Fecha del Cargo</label>
+    <input type="date" [(ngModel)]="cargoForm.fecha_cargo">
+
+    <label>Fecha de Vencimiento (opcional)</label>
+    <input type="date" [(ngModel)]="cargoForm.fecha_vence">
+
+    <label>Notas (opcional)</label>
+    <textarea [(ngModel)]="cargoForm.notas" placeholder="Observaciones..."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancelar" (click)="modalCargo = false">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarCargo()" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar Cargo' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: REGISTRAR PAGO                           -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-bg" *ngIf="modalPago">
+  <div class="modal">
+
+    <h2>💵 Registrar Pago</h2>
+
+    <div class="pago-resumen" *ngIf="cargoSeleccionado">
+      <p><strong>Concepto:</strong> {{ cargoSeleccionado.concepto_nombre }}</p>
+      <p><strong>Total:</strong> ${{ cargoSeleccionado.monto_total | number:'1.2-2' }}</p>
+      <p><strong>Ya pagado:</strong> ${{ cargoSeleccionado.monto_pagado | number:'1.2-2' }}</p>
+      <p class="pendiente-resumen">
+        <strong>Pendiente:</strong>
+        ${{ pendienteCargo(cargoSeleccionado) | number:'1.2-2' }}
+      </p>
+    </div>
+
+    <label>Monto a Pagar ($)</label>
+    <input type="number" [(ngModel)]="pagoForm.monto" placeholder="0.00">
+
+    <label>Método de Pago</label>
+    <select [(ngModel)]="pagoForm.metodo">
+      <option value="efectivo">💵 Efectivo</option>
+      <option value="transferencia">🏦 Transferencia</option>
+      <option value="tarjeta">💳 Tarjeta</option>
+    </select>
+
+    <label *ngIf="pagoForm.metodo === 'transferencia'">
+      Referencia / Folio
+    </label>
+    <input
+      *ngIf="pagoForm.metodo === 'transferencia'"
+      [(ngModel)]="pagoForm.referencia"
+      placeholder="Número de referencia">
+
+    <label *ngIf="pagoForm.metodo === 'tarjeta'">
+      Últimos 4 dígitos (opcional)
+    </label>
+    <input
+      *ngIf="pagoForm.metodo === 'tarjeta'"
+      [(ngModel)]="pagoForm.referencia"
+      placeholder="Ej: 4521">
+
+    <label>Fecha de Pago</label>
+    <input type="date" [(ngModel)]="pagoForm.fecha_pago">
+
+    <label>Notas (opcional)</label>
+    <textarea [(ngModel)]="pagoForm.notas" placeholder="Observaciones..."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancelar" (click)="modalPago = false">Cancelar</button>
+      <button class="btn-guardar" (click)="registrarPago()" [disabled]="guardando">
+        {{ guardando ? 'Registrando...' : 'Confirmar Pago' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: ASIGNAR CARGO EN MASA                    -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-bg" *ngIf="modalAsignar">
+  <div class="modal modal-wide">
+
+    <h2>📋 Asignar Cargo</h2>
+
+    <label>Concepto</label>
+    <select [(ngModel)]="asignarForm.concepto_id" (change)="onConceptoAsignarChange()">
+      <option value="">— Seleccionar concepto —</option>
+      <option *ngFor="let c of conceptos" [value]="c.id">{{ c.nombre }}</option>
+    </select>
+
+    <label>Nombre del cargo (editable)</label>
+    <input [(ngModel)]="asignarForm.concepto_nombre" placeholder="Nombre del cargo">
+
+    <label>Monto Total ($)</label>
+    <input type="number" [(ngModel)]="asignarForm.monto_total" placeholder="0.00">
+
+    <label>Fecha del Cargo</label>
+    <input type="date" [(ngModel)]="asignarForm.fecha_cargo">
+
+    <label>Fecha de Vencimiento (opcional)</label>
+    <input type="date" [(ngModel)]="asignarForm.fecha_vence">
+
+    <label>Asignar a</label>
+    <select [(ngModel)]="asignarForm.alcance">
+      <option value="todos">Todos los alumnos activos</option>
+      <option value="grado">Por grado</option>
+      <option value="grupo">Por grado y grupo</option>
+      <option value="individual">Alumno individual</option>
+    </select>
+
+    <div *ngIf="asignarForm.alcance === 'grado' || asignarForm.alcance === 'grupo'">
+      <label>Grado</label>
+      <select [(ngModel)]="asignarForm.grado">
+        <option value="1">1°</option>
+        <option value="2">2°</option>
+        <option value="3">3°</option>
+      </select>
+    </div>
+
+    <div *ngIf="asignarForm.alcance === 'grupo'">
+      <label>Grupo</label>
+      <select [(ngModel)]="asignarForm.grupo">
+        <option value="A">A</option>
+        <option value="B">B</option>
+      </select>
+    </div>
+
+    <div *ngIf="asignarForm.alcance === 'individual'">
+      <label>Alumno</label>
+      <select [(ngModel)]="asignarForm.alumno_individual">
+        <option value="">— Seleccionar alumno —</option>
+        <option *ngFor="let a of alumnos" [value]="a.id">
+          {{ a.nombre }} ({{ a.grado }}°{{ a.grupo }})
+        </option>
+      </select>
+    </div>
+
+    <label>Notas (opcional)</label>
+    <textarea [(ngModel)]="asignarForm.notas" placeholder="Observaciones..."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancelar" (click)="modalAsignar = false">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarAsignacion()" [disabled]="guardando">
+        {{ guardando ? 'Asignando...' : 'Asignar Cargo' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: CONCEPTO DE COBRO                        -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-bg" *ngIf="modalConcepto">
+  <div class="modal">
+
+    <h2>{{ editandoConcepto ? '✏️ Editar Concepto' : '➕ Nuevo Concepto' }}</h2>
+
+    <label>Nombre</label>
+    <input [(ngModel)]="conceptoForm.nombre" placeholder="Nombre del concepto">
+
+    <label>Descripción</label>
+    <input [(ngModel)]="conceptoForm.descripcion" placeholder="Descripción breve">
+
+    <label>Monto ($)</label>
+    <input type="number" [(ngModel)]="conceptoForm.monto" placeholder="0.00">
+
+    <label>Tipo</label>
+    <select [(ngModel)]="conceptoForm.tipo">
+      <option value="unico">Único (una sola vez)</option>
+      <option value="mensual">Mensual</option>
+      <option value="anual">Anual</option>
+      <option value="general">General</option>
+    </select>
+
+    <div class="modal-actions">
+      <button class="btn-cancelar" (click)="modalConcepto = false">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarConcepto()" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+
+  </div>
+</div>

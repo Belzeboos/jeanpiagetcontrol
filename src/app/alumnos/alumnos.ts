@@ -29,10 +29,7 @@ export class Alumnos implements OnInit {
   };
 
   graduadosCount = 0;
-
-  // ✅ NUEVO: SOLO ALUMNOS ACTIVOS
   activosCount = 0;
-
   searchText: string = '';
 
   constructor(
@@ -43,10 +40,7 @@ export class Alumnos implements OnInit {
 
   async ngOnInit() {
     this.alumnoForm = this.nuevoAlumno();
-
-    setTimeout(() => {
-      this.cargarAlumnos();
-    }, 0);
+    await this.cargarAlumnos();
   }
 
   nuevoAlumno() {
@@ -73,17 +67,10 @@ export class Alumnos implements OnInit {
         return;
       }
 
-      this.alumnos = [];
-
-      setTimeout(() => {
-
-        this.alumnos = data || [];
-        this.alumnosFiltrados = [...this.alumnos];
-
-        this.recalcularEstadisticas();
-
-        this.cdr.detectChanges();
-      }, 0);
+      this.alumnos = data || [];
+      this.alumnosFiltrados = [...this.alumnos];
+      this.recalcularEstadisticas();
+      this.cdr.detectChanges();
 
     } catch (error) {
       console.error(error);
@@ -91,7 +78,6 @@ export class Alumnos implements OnInit {
   }
 
   recalcularEstadisticas() {
-
     this.alumnosPorGrupo = {
       '1A': 0, '1B': 0,
       '2A': 0, '2B': 0,
@@ -99,23 +85,18 @@ export class Alumnos implements OnInit {
     };
 
     this.graduadosCount = 0;
-    this.activosCount = 0; // ✅ RESET
+    this.activosCount = 0;
 
     for (let alumno of this.alumnos) {
-
       const clave = `${alumno.grado}${alumno.grupo}`;
 
-      // ✅ SOLO ACTIVOS PARA CONTADORES Y GRUPOS
       if (alumno.estado === 'Activo') {
-
         this.activosCount++;
-
         if (this.alumnosPorGrupo[clave] !== undefined) {
           this.alumnosPorGrupo[clave]++;
         }
       }
 
-      // GRADUADOS (igual que antes)
       if (alumno.estado === 'Graduado') {
         this.graduadosCount++;
       }
@@ -123,14 +104,11 @@ export class Alumnos implements OnInit {
   }
 
   filtrarAlumnos() {
-
     const texto = this.searchText.toLowerCase();
 
     this.alumnosFiltrados = this.alumnos.filter(alumno => {
-
       const nombre = alumno.nombre?.toLowerCase() || '';
       const grupo = `${alumno.grado}${alumno.grupo}`.toLowerCase();
-
       return nombre.includes(texto) || grupo.includes(texto);
     });
   }
@@ -155,7 +133,6 @@ export class Alumnos implements OnInit {
       domicilio: alumno.domicilio || '',
       estado: alumno.estado || 'Activo',
       foto: alumno.foto || 'https://i.pravatar.cc/60',
-
       contactos: alumno.contactos || [''],
       alergias: alumno.alergias || ['']
     };
@@ -164,9 +141,7 @@ export class Alumnos implements OnInit {
   }
 
   async guardarAlumno() {
-
     if (this.guardando) return;
-
     this.guardando = true;
 
     const payload = {
@@ -178,13 +153,11 @@ export class Alumnos implements OnInit {
       domicilio: this.alumnoForm.domicilio?.trim(),
       estado: this.alumnoForm.estado,
       foto: this.alumnoForm.foto,
-
       contactos: this.alumnoForm.contactos || [],
       alergias: this.alumnoForm.alergias || []
     };
 
     try {
-
       let result;
 
       if (this.editando) {
@@ -195,16 +168,20 @@ export class Alumnos implements OnInit {
 
       if (result?.error) {
         alert('No se pudo guardar');
+        this.guardando = false;
         return;
       }
 
-      await this.cargarAlumnos();
+      this.guardando = false;
       this.cerrarModal();
+      this.cdr.detectChanges();
+
+      this.cargarAlumnos();
 
     } catch (error) {
       console.error(error);
-    } finally {
       this.guardando = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -237,13 +214,10 @@ export class Alumnos implements OnInit {
   }
 
   async eliminarAlumno(id: number) {
-
     const confirmar = confirm('¿Seguro que deseas eliminar este alumno?');
-
     if (!confirmar) return;
 
     try {
-
       const { error } = await this.alumnosService.eliminarAlumno(id);
 
       if (error) {
@@ -252,7 +226,7 @@ export class Alumnos implements OnInit {
         return;
       }
 
-      await this.cargarAlumnos();
+      this.cargarAlumnos();
 
     } catch (error) {
       console.error(error);

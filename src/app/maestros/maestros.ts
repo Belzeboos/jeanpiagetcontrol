@@ -31,12 +31,9 @@ export class Maestros implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.maestroForm = this.nuevoMaestro();
-
-    setTimeout(() => {
-      this.cargarMaestros();
-    }, 0);
+    await this.cargarMaestros();
   }
 
   nuevoMaestro() {
@@ -62,14 +59,10 @@ export class Maestros implements OnInit {
         return;
       }
 
-      this.maestros = [];
-
-      setTimeout(() => {
-        this.maestros = data || [];
-        this.maestrosFiltrados = [...this.maestros];
-        this.recalcular();
-        this.cdr.detectChanges();
-      }, 0);
+      this.maestros = data || [];
+      this.maestrosFiltrados = [...this.maestros];
+      this.recalcular();
+      this.cdr.detectChanges();
 
     } catch (error) {
       console.error(error);
@@ -117,9 +110,7 @@ export class Maestros implements OnInit {
   }
 
   async guardar() {
-
     if (this.guardando) return;
-
     this.guardando = true;
 
     const payload = {
@@ -135,30 +126,30 @@ export class Maestros implements OnInit {
     };
 
     try {
-
       let result;
 
       if (this.editando) {
-        result = await this.maestrosService.actualizarMaestro(
-          this.maestroId,
-          payload
-        );
+        result = await this.maestrosService.actualizarMaestro(this.maestroId, payload);
       } else {
         result = await this.maestrosService.crearMaestro(payload);
       }
 
       if (result?.error) {
         alert('No se pudo guardar');
+        this.guardando = false;
         return;
       }
 
-      await this.cargarMaestros();
+      this.guardando = false;
       this.cerrar();
+      this.cdr.detectChanges();
+
+      this.cargarMaestros();
 
     } catch (error) {
       console.error(error);
-    } finally {
       this.guardando = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -183,14 +174,12 @@ export class Maestros implements OnInit {
   }
 
   async eliminar(id: number) {
-
     const ok = confirm('¿Eliminar maestro?');
-
     if (!ok) return;
 
     try {
       await this.maestrosService.eliminarMaestro(id);
-      await this.cargarMaestros();
+      this.cargarMaestros();
     } catch (error) {
       console.error(error);
     }

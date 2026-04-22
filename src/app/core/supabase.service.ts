@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,16 +11,13 @@ export class SupabaseService {
 
   constructor() {
     this.client = createClient(
-      'https://dulgjpgakoslrhctmivp.supabase.co',
-      'sb_publishable_AfORqoyYEo2gWkQc4paC6g_gRvWnWws'
+      environment.supabaseUrl,
+      environment.supabaseKey
     );
   }
 
   async login(email: string, password: string) {
-    return await this.client.auth.signInWithPassword({
-      email,
-      password
-    });
+    return await this.client.auth.signInWithPassword({ email, password });
   }
 
   async getUser() {
@@ -30,5 +28,3 @@ export class SupabaseService {
     return await this.client.auth.signOut();
   }
 }
-
-    
